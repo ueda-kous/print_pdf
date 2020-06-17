@@ -66,7 +66,8 @@ if(empty($_GET)){
 
 
 	// PDF生成コマンドの設定
-	$cmd = "wkhtmltopdf --page-size A4 --orientation Landscape --margin-top 0 --margin-bottom 0 --margin-left 0 --margin-right 0 \"{$call_url}\" {$pdf_filename}.pdf";
+	// $cmd = "wkhtmltopdf --page-size A4 --orientation Landscape --margin-top 0 --margin-bottom 0 --margin-left 0 --margin-right 0 \"{$call_url}\" {$pdf_filename}.pdf";
+	$cmd = "node print.js \"{$call_url}\" {$pdf_filename}";
 
 
 	// PDF生成コマンドの設定
@@ -77,6 +78,9 @@ if(empty($_GET)){
 
 	// 最終的に生成するファイル名を設定する
 	$file = $pdf_filename.".pdf";
+
+	// PDF保存フォルダ
+	$temp_path = __Dir__."/pdf/"
 
 /*
 	if("ip" == $report_type){
@@ -89,14 +93,14 @@ if(empty($_GET)){
 */
 
 	// 生成したPDFファイルの利用権限を設定
-	$cmd = "chmod 777 {$file}";
+	$cmd = "chmod 777 {$temp_path}{$file}";
 	system($cmd, $status);
 
 	// ファイルが正常に生成されて存在するか確認
-	if(file_exists($file)){
+	if(file_exists($temp_path.$file)){
 
 		// PDFのファイルサイズがゼロならシステムエラー
-		if (($content_length = filesize($file)) == 0) {
+		if (($content_length = filesize($temp_path.$file)) == 0) {
 
 			die("Error: File size is 0.(".$file.")");
 
@@ -107,12 +111,12 @@ if(empty($_GET)){
 		header("Content-Disposition: attachment; filename={$file}");
 
 		// ファイルを読んで削除しておく。
-		if (!readfile($file)) {
+		if (!readfile($temp_path.$file)) {
 			// ファイルを読み込めなければシステムエラー
 			die("Cannot read the file(".$file.")");
 		}else{
 			// 一時的に生成している内部のPDFファイルを削除
-			exec('rm *.pdf');
+			exec('rm ./pdf/*.pdf');
 		}//endif
 
 	}else{
